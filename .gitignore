@@ -52,3 +52,10 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+
+# Jetbrains Rider
+.idea/
+
+# C# Migrations
+[Mm]igrations/

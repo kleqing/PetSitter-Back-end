@@ -1,0 +1,134 @@
+﻿using Microsoft.EntityFrameworkCore;
+using PetSitter.Models.Models;
+
+namespace PetSitter.DataAccess;
+
+public class ApplicationDbContext : DbContext
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+    }
+
+    public DbSet<Blogs> Blogs { get; set; }
+    public DbSet<Brands> Brands { get; set; }
+    public DbSet<Categories> Categories { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
+    public DbSet<Orders> Orders { get; set; }
+    public DbSet<Products> Products { get; set; }
+    public DbSet<Reviews> Reviews { get; set; }
+    public DbSet<Services> Services { get; set; }
+    public DbSet<Shops> Shops { get; set; }
+    public DbSet<Users> Users { get; set; }
+    public DbSet<Tags> Tags { get; set; }
+    public DbSet<Bookings> Bookings { get; set; }
+    public DbSet<Pets> Pets { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Blogs>().HasKey(x => x.BlogId);
+        modelBuilder.Entity<Brands>().HasKey(x => x.BrandId);
+        modelBuilder.Entity<Categories>().HasKey(x => x.CategoryId);
+        modelBuilder.Entity<OrderItem>().HasKey(x => x.OrderItemId);
+        modelBuilder.Entity<Orders>().HasKey(x => x.OrderId);
+        modelBuilder.Entity<Products>().HasKey(x => x.ProductId);
+        modelBuilder.Entity<Reviews>().HasKey(x => x.ReviewId);
+        modelBuilder.Entity<Services>().HasKey(x => x.ServiceId);
+        modelBuilder.Entity<Shops>().HasKey(x => x.ShopId);
+        modelBuilder.Entity<Users>().HasKey(x => x.UserId);
+        modelBuilder.Entity<Tags>().HasKey(x => x.TagId);
+        modelBuilder.Entity<Bookings>().HasKey(x => x.BookingId);
+        modelBuilder.Entity<Pets>().HasKey(x => x.PetId);
+        
+        //* Relationships
+        modelBuilder.Entity<Users>()
+            .HasOne(x => x.Shop)
+            .WithOne(x => x.User)
+            .HasForeignKey<Shops>(x => x.UserId);
+
+        modelBuilder.Entity<Blogs>()
+            .HasOne(x => x.Author)
+            .WithMany(x => x.Blogs)
+            .HasForeignKey(x => x.AuthorId);
+            
+        modelBuilder.Entity<Users>()
+            .HasMany(x => x.Reviews)
+            .WithOne(x => x.Users)
+            .HasForeignKey(x => x.UserId);
+        
+        modelBuilder.Entity<Users>()
+            .HasMany(x => x.Orders)
+            .WithOne(x => x.User)
+            .HasForeignKey(x => x.UserId);
+        
+        modelBuilder.Entity<Shops>()
+            .HasMany(x => x.Products)
+            .WithOne(x => x.Shop)
+            .HasForeignKey(x => x.ShopId);
+        
+        modelBuilder.Entity<Shops>()
+            .HasMany(x => x.Services)
+            .WithOne(x => x.Shop)
+            .HasForeignKey(x => x.ShopId);
+        
+        modelBuilder.Entity<Products>()
+            .HasMany(x => x.Reviews)
+            .WithOne(x => x.Product)
+            .HasForeignKey(x => x.ProductId)
+            .IsRequired(false);
+        
+        modelBuilder.Entity<Categories>()
+            .HasMany(x => x.Products)
+            .WithOne(x => x.Category)
+            .HasForeignKey(x => x.CategoryId);
+        
+        modelBuilder.Entity<OrderItem>()
+            .HasOne(x => x.Product)
+            .WithMany(x => x.OrderItems)
+            .HasForeignKey(x => x.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<OrderItem>()
+            .HasOne(x => x.Order)
+            .WithMany(x => x.OrderItems)
+            .HasForeignKey(x => x.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Brands>()
+            .HasMany(x => x.Products)
+            .WithOne(x => x.Brand)
+            .HasForeignKey(x => x.BrandId);
+        
+        modelBuilder.Entity<Products>()
+            .HasMany(p => p.Tags)
+            .WithMany(t => t.Products)
+            .UsingEntity("ProductTags");
+
+        modelBuilder.Entity<Blogs>()
+            .HasMany(b => b.Tags)
+            .WithMany(t => t.Blogs)
+            .UsingEntity("BlogTags");
+        
+        modelBuilder.Entity<Users>()
+            .HasMany(x => x.Pets)
+            .WithOne(x => x.Owner)
+            .HasForeignKey(x => x.OwnerId);
+        
+        modelBuilder.Entity<Bookings>()
+            .HasOne(x => x.Customer)
+            .WithMany(x => x.Bookings)
+            .HasForeignKey(x => x.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Bookings>()
+            .HasOne(x => x.Pet)
+            .WithMany(x => x.Bookings)
+            .HasForeignKey(x => x.PetId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Bookings>()
+            .HasOne(x => x.Service)
+            .WithMany(x => x.Bookings)
+            .HasForeignKey(x => x.ServiceId)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
+}
