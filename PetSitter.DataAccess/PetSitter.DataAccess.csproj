@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PetSitter.Models\PetSitter.Models.csproj" />
+      <ProjectReference Include="..\PetSitter.Utility\PetSitter.Utility.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -21,6 +22,10 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services\Interfaces\" />
     </ItemGroup>
 
 </Project>
