@@ -1,22 +1,21 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 using PetSitter.Models.Enums;
 
 namespace PetSitter.Models.Models;
 
-public class Users
+public class Users : IdentityUser<Guid>
 {
-    public Guid UserId { get; set; }
     public string FullName { get; set; } = string.Empty;
     [EmailAddress]
-    public string Email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
-    public string AvatarUrl { get; set; } = string.Empty;
-    public string PhoneNumber { get; set; } = string.Empty;
+    public string ProfilePictureUrl  { get; set; } = string.Empty;
     public UserRole Role { get; set; }
     public DateTime DateOfBirth { get; set; }
     public string Address { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    [MaxLength(100)] public string? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpiryTime { get; set; }
     
     public virtual Shops Shop { get; set; } = new Shops();
     public virtual ICollection<Blogs> Blogs { get; set; } = new List<Blogs>();
