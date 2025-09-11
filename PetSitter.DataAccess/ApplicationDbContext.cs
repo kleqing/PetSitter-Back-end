@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PetSitter.Models.Models;
 
 namespace PetSitter.DataAccess;
 
-public class ApplicationDbContext : IdentityDbContext<Users, IdentityRole<Guid>, Guid>
+public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
@@ -18,11 +17,12 @@ public class ApplicationDbContext : IdentityDbContext<Users, IdentityRole<Guid>,
     public DbSet<Orders> Orders { get; set; }
     public DbSet<Products> Products { get; set; }
     public DbSet<Reviews> Reviews { get; set; }
-    public DbSet<Models.Models.Services> Services { get; set; }
+    public DbSet<Services> Services { get; set; }
     public DbSet<Shops> Shops { get; set; }
     public DbSet<Tags> Tags { get; set; }
     public DbSet<Bookings> Bookings { get; set; }
     public DbSet<Pets> Pets { get; set; }
+    public DbSet<Users> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -33,17 +33,14 @@ public class ApplicationDbContext : IdentityDbContext<Users, IdentityRole<Guid>,
         modelBuilder.Entity<Orders>().HasKey(x => x.OrderId);
         modelBuilder.Entity<Products>().HasKey(x => x.ProductId);
         modelBuilder.Entity<Reviews>().HasKey(x => x.ReviewId);
-        modelBuilder.Entity<Models.Models.Services>().HasKey(x => x.ServiceId);
+        modelBuilder.Entity<Services>().HasKey(x => x.ServiceId);
         modelBuilder.Entity<Shops>().HasKey(x => x.ShopId);
         modelBuilder.Entity<Tags>().HasKey(x => x.TagId);
         modelBuilder.Entity<Bookings>().HasKey(x => x.BookingId);
         modelBuilder.Entity<Pets>().HasKey(x => x.PetId);
-        modelBuilder.Entity<Users>().HasKey(x => x.Id);
+        modelBuilder.Entity<Users>().HasKey(x => x.UserId);
         
         //* Relationships
-        modelBuilder.Entity<IdentityUserLogin<Guid>>()
-            .HasKey(l => new { l.LoginProvider, l.ProviderKey });
-        
         modelBuilder.Entity<Users>()
             .HasOne(x => x.Shop)
             .WithOne(x => x.User)
