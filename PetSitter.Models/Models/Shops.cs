@@ -12,8 +12,8 @@ public class Shops
     public string ShopImageUrl { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-    
-    public virtual Users User { get; set; } = new Users();
+
+    public virtual Users User { get; set; }
     public virtual ICollection<Products> Products { get; set; } = new List<Products>();
     public virtual ICollection<Services> Services { get; set; } = new List<Services>();
 }

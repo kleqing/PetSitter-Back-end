@@ -15,7 +15,7 @@ public class Bookings
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; }
 
-    public virtual Users Customer { get; set; } = new Users();
-    public virtual Pets Pet { get; set; } =  new Pets();
-    public virtual Services Service { get; set; } = new Services();
+    public virtual Users Customer { get; set; }
+    public virtual Pets Pet { get; set; }
+    public virtual Services Service { get; set; }
 }

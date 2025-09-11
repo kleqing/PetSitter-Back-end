@@ -10,6 +10,6 @@ public class Services
     public List<string> ServiceImageUrl { get; set; } = new List<string>();
     public DateTime CreatedAt { get; set; }
     
-    public virtual Shops Shop { get; set; } = new Shops();
+    public virtual Shops Shop { get; set; }
     public virtual ICollection<Bookings> Bookings { get; set; } = new List<Bookings>();
 }

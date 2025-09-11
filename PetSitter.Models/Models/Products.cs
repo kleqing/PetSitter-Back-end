@@ -16,10 +16,10 @@ public class Products
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     
-    public virtual Shops Shop { get; set; } = new Shops();
+    public virtual Shops Shop { get; set; }
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     public virtual ICollection<Reviews> Reviews { get; set; } = new List<Reviews>();
     public virtual ICollection<Tags> Tags { get; set; } = new List<Tags>();
-    public virtual Brands Brand { get; set; } = new Brands();
-    public virtual Categories Category { get; set; } = new Categories();
+    public virtual Brands Brand { get; set; }
+    public virtual Categories Category { get; set; }
 }

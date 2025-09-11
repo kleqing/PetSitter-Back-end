@@ -12,6 +12,6 @@ public class Blogs
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     
-    public virtual Users Author { get; set; } = new Users();
+    public virtual Users Author { get; set; }
     public virtual ICollection<Tags> Tags { get; set; } = new List<Tags>();
 }
