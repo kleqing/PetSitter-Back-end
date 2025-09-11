@@ -1,34 +1,36 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PetSitter.DataAccess;
 using PetSitter.DataAccess.Repository.Implements;
 using PetSitter.DataAccess.Repository.Interfaces;
-using PetSitter.DataAccess.Services.Implements;
-using PetSitter.DataAccess.Services.Interfaces;
-using PetSitter.DataAccess.Services.Role;
-using PetSitter.Models.Models;
+using PetSitter.Services.Implements;
+using PetSitter.Services.Interfaces;
 
 namespace PetSitter.WebApi;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
         
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
-        builder.Services.AddScoped<IAuthServices, AuthServices>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
-        
-        builder.Services.AddIdentity<Users, IdentityRole<Guid>>()
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultTokenProviders();
+        builder.Services.AddScoped<IAuthServices, AuthServices>();
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+        
         // Add services to the container.
         builder.Services.AddAuthorization();
 
@@ -55,17 +57,14 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-        
-        using (var scope = app.Services.CreateScope())
-        {
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-            await RoleService.SeedRole(roleManager);
-        }
 
         app.UseHttpsRedirection();
+        
+        app.UseCors("AllowAll");
 
         app.UseRouting();
         
+        app.UseAuthentication();
         app.UseAuthorization();
         
         app.MapControllers();
