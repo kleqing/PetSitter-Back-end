@@ -24,6 +24,7 @@
     <ItemGroup>
       <ProjectReference Include="..\PetSitter.DataAccess\PetSitter.DataAccess.csproj" />
       <ProjectReference Include="..\PetSitter.Models\PetSitter.Models.csproj" />
+      <ProjectReference Include="..\PetSitter.Services\PetSitter.Services.csproj" />
     </ItemGroup>
 
 </Project>

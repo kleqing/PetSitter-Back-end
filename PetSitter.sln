@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PetSitter.WebApi", "PetSitt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PetSitter.Utility", "PetSitter.Utility\PetSitter.Utility.csproj", "{D9335F19-ECE8-4E4C-898C-F611CF79BE76}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PetSitter.Services", "PetSitter.Services\PetSitter.Services.csproj", "{B19E645A-965F-4FE2-9F23-ABE0CA986F74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{D9335F19-ECE8-4E4C-898C-F611CF79BE76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9335F19-ECE8-4E4C-898C-F611CF79BE76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9335F19-ECE8-4E4C-898C-F611CF79BE76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B19E645A-965F-4FE2-9F23-ABE0CA986F74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B19E645A-965F-4FE2-9F23-ABE0CA986F74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B19E645A-965F-4FE2-9F23-ABE0CA986F74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B19E645A-965F-4FE2-9F23-ABE0CA986F74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
