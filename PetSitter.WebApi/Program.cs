@@ -1,10 +1,7 @@
+using System.Reflection;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using PetSitter.DataAccess;
-using PetSitter.DataAccess.Repository.Implements;
-using PetSitter.DataAccess.Repository.Interfaces;
-using PetSitter.Services.Implements;
-using PetSitter.Services.Interfaces;
 
 namespace PetSitter.WebApi;
 
@@ -18,9 +15,32 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
-        builder.Services.AddScoped<IAuthServices, AuthServices>();
+        //* Auto register all services and repositories
+        var currentAssembly = typeof(Program).Assembly; // chỉ WebApi
+        var referencedAssemblies = currentAssembly.GetReferencedAssemblies()
+            .Where(a => a.Name != null && a.Name.StartsWith("PetSitter")); //* Only load assemblies that start with prefix of the projects in the solution
 
+        var assemblies = referencedAssemblies
+            .Select(Assembly.Load)
+            .Append(currentAssembly);
+
+        foreach (var type in assemblies.SelectMany(a => a.GetTypes()))
+        {
+            if (type.IsClass && !type.IsAbstract)
+            {
+                foreach (var iface in type.GetInterfaces())
+                {
+                    if (iface.Name == $"I{type.Name}")
+                    {
+                        builder.Services.AddScoped(iface, type);
+                    }
+                }
+            }
+        }
+        //* END OF AUTO REGISTER
+
+        //* Configure routing to use lowercase URLs
+        builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowAll", policy =>
@@ -37,15 +57,11 @@ public class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
+        
         builder.Services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.PropertyNamingPolicy =
-                    JsonNamingPolicy.CamelCase; //* Use original property names
-                options.JsonSerializerOptions.PropertyNameCaseInsensitive =
-                    true; //* Enable case-insensitive property names
-            });
+            .AddNewtonsoftJson(options => 
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
         
         builder.Services.AddHttpContextAccessor();
 
