@@ -59,4 +59,49 @@ public class ProductController : ControllerBase
         }
         return Ok(response);
     }
+    
+    [HttpGet("related-products/{productId}")]
+    public async Task<IActionResult> ListRelatedProducts([FromRoute] Guid productId)
+    {
+        var response = new BaseResultResponse<List<Products>>();
+        
+        var relatedProducts = await _productRepository.ListRelatedProductsFromCurrentProduct(productId);
+        
+        if (relatedProducts != null && relatedProducts.Count > 0)
+        {
+            response.Success = true;
+            response.Message = "List related products successful";
+            response.Data = relatedProducts;
+        }
+        else
+        {
+            response.Success = false;
+            response.Message = "No related products found";
+            response.Data = null;
+        }
+        return Ok(response);
+    }
+
+    [HttpGet("reviews/{productId}")]
+    public async Task<IActionResult> ListReviewsFromCurrentProduct([FromRoute] Guid productId)
+    {
+        var response = new BaseResultResponse<List<Reviews>>();
+
+        var reviews = await _productRepository.ListReviewFromCurrentProduct(productId);
+
+        if (reviews != null && reviews.Count > 0)
+        {
+            response.Success = true;
+            response.Message = "List reviews successful";
+            response.Data = reviews;
+        }
+        else
+        {
+            response.Success = false;
+            response.Message = "No reviews found";
+            response.Data = null;
+        }
+
+        return Ok(response);
+    }
 }
