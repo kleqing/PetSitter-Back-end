@@ -19,9 +19,11 @@ public class ApplicationDbContext : DbContext
     public DbSet<Reviews> Reviews { get; set; }
     public DbSet<Services> Services { get; set; }
     public DbSet<Shops> Shops { get; set; }
-    public DbSet<Tags> Tags { get; set; }
+    public DbSet<BlogTags> BlogTags { get; set; }
     public DbSet<Bookings> Bookings { get; set; }
     public DbSet<Pets> Pets { get; set; }
+    public DbSet<ProductTags> ProductTags { get; set; }
+    public DbSet<ServiceTags> ServiceTags { get; set; }
     public DbSet<Users> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -35,10 +37,12 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Reviews>().HasKey(x => x.ReviewId);
         modelBuilder.Entity<Services>().HasKey(x => x.ServiceId);
         modelBuilder.Entity<Shops>().HasKey(x => x.ShopId);
-        modelBuilder.Entity<Tags>().HasKey(x => x.TagId);
+        modelBuilder.Entity<BlogTags>().HasKey(x => x.BlogTagId);
+        modelBuilder.Entity<ProductTags>().HasKey(x => x.ProductTagId);
         modelBuilder.Entity<Bookings>().HasKey(x => x.BookingId);
         modelBuilder.Entity<Pets>().HasKey(x => x.PetId);
         modelBuilder.Entity<Users>().HasKey(x => x.UserId);
+        modelBuilder.Entity<ServiceTags>().HasKey(x => x.ServiceTagId);
         
         //* Relationships
         modelBuilder.Entity<Users>()
@@ -99,16 +103,6 @@ public class ApplicationDbContext : DbContext
             .WithOne(x => x.Brand)
             .HasForeignKey(x => x.BrandId);
         
-        modelBuilder.Entity<Products>()
-            .HasMany(p => p.Tags)
-            .WithMany(t => t.Products)
-            .UsingEntity("ProductTags");
-
-        modelBuilder.Entity<Blogs>()
-            .HasMany(b => b.Tags)
-            .WithMany(t => t.Blogs)
-            .UsingEntity("BlogTags");
-        
         modelBuilder.Entity<Users>()
             .HasMany(x => x.Pets)
             .WithOne(x => x.Owner)
@@ -131,5 +125,25 @@ public class ApplicationDbContext : DbContext
             .WithMany(x => x.Bookings)
             .HasForeignKey(x => x.ServiceId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Products>()
+            .HasOne(x => x.Tags)
+            .WithMany(x => x.Products)
+            .HasForeignKey(x => x.TagId);
+
+        modelBuilder.Entity<Blogs>()
+            .HasOne(x => x.BlogTag)
+            .WithMany(x => x.Blogs)
+            .HasForeignKey(x => x.TagId);
+        
+        modelBuilder.Entity<Services>()
+            .HasOne(x => x.ServiceTags)
+            .WithMany(x => x.Service)
+            .HasForeignKey(x => x.TagId);
+        
+        modelBuilder.Entity<Blogs>()
+            .HasOne(x => x.Categories)
+            .WithMany(x => x.Blogs)
+            .HasForeignKey(x => x.CategoryId);
     }
 }
