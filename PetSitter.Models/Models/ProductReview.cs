@@ -1,6 +1,6 @@
 namespace PetSitter.Models.Models;
 
-public class Reviews
+public class ProductReview
 {
     public Guid ReviewId { get; set; }
     public Guid UserId { get; set; }
@@ -9,6 +9,6 @@ public class Reviews
     public string Comment { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
 
-    public virtual Users Users { get; set; } = new Users();
-    public virtual Products Product { get; set; } = new Products();
+    public virtual Users Users { get; set; }
+    public virtual Products Product { get; set; }
 }

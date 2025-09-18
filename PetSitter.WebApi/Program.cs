@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using PetSitter.DataAccess;
 
@@ -13,14 +15,55 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
+        //* Auto register all services and repositories
+        var currentAssembly = typeof(Program).Assembly; // chỉ WebApi
+        var referencedAssemblies = currentAssembly.GetReferencedAssemblies()
+            .Where(a => a.Name != null && a.Name.StartsWith("PetSitter")); //* Only load assemblies that start with prefix of the projects in the solution
+
+        var assemblies = referencedAssemblies
+            .Select(Assembly.Load)
+            .Append(currentAssembly);
+
+        foreach (var type in assemblies.SelectMany(a => a.GetTypes()))
+        {
+            if (type.IsClass && !type.IsAbstract)
+            {
+                foreach (var iface in type.GetInterfaces())
+                {
+                    if (iface.Name == $"I{type.Name}")
+                    {
+                        builder.Services.AddScoped(iface, type);
+                    }
+                }
+            }
+        }
+        //* END OF AUTO REGISTER
+
+        //* Configure routing to use lowercase URLs
+        builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+        
         // Add services to the container.
         builder.Services.AddAuthorization();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
-        builder.Services.AddControllers();
+        
+        builder.Services.AddControllers()
+            .AddNewtonsoftJson(options => 
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
+        
+        builder.Services.AddHttpContextAccessor();
 
         var app = builder.Build();
 
@@ -31,11 +74,17 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.UseHttpsRedirection();
+        
+        app.UseCors("AllowAll");
+
+        app.UseRouting();
+        
+        app.UseAuthentication();
+        app.UseAuthorization();
+        
         app.MapControllers();
 
-        app.UseHttpsRedirection();
-
-        app.UseAuthorization();
         app.Run();
     }
 }

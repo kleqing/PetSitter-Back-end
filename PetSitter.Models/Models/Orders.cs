@@ -11,6 +11,6 @@ public class Orders
     public string ShippingAddress { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     
-    public virtual Users User { get; set; } = new Users();
+    public virtual Users User { get; set; }
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 }

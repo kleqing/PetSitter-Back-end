@@ -12,6 +12,6 @@ public class Pets
     public string? Note { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
-    public virtual Users Owner { get; set; } = new Users();
+    public virtual Users Owner { get; set; }
     public virtual ICollection<Bookings> Bookings { get; set; } = new List<Bookings>();
 }
