@@ -23,7 +23,9 @@ public class AuthServices : IAuthServices
             .FirstOrDefaultAsync(u => u.Email == request.Email);
 
         if (existingUser != null)
+        {
             throw new GlobalException("Email already in use");
+        }
 
         var user = new Users
         {
