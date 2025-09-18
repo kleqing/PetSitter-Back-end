@@ -19,7 +19,7 @@ public class Products
     
     public virtual Shops Shop { get; set; }
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-    public virtual ICollection<Reviews> Reviews { get; set; } = new List<Reviews>();
+    public virtual ICollection<ProductReview> Reviews { get; set; } = new List<ProductReview>();
     public virtual ProductTags Tags { get; set; }
     public virtual Brands Brand { get; set; }
     public virtual Categories Category { get; set; }

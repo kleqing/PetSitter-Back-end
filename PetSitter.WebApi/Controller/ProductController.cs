@@ -85,7 +85,7 @@ public class ProductController : ControllerBase
     [HttpGet("reviews/{productId}")]
     public async Task<IActionResult> ListReviewsFromCurrentProduct([FromRoute] Guid productId)
     {
-        var response = new BaseResultResponse<List<Reviews>>();
+        var response = new BaseResultResponse<List<ProductReview>>();
 
         var reviews = await _productRepository.ListReviewFromCurrentProduct(productId);
 

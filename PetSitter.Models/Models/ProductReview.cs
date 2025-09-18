@@ -1,6 +1,6 @@
 namespace PetSitter.Models.Models;
 
-public class Reviews
+public class ProductReview
 {
     public Guid ReviewId { get; set; }
     public Guid UserId { get; set; }

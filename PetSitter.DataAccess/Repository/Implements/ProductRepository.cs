@@ -56,7 +56,7 @@ public class ProductRepository : IProductRepository
         return relatedProducts;
     }
 
-    public async Task<List<Reviews>> ListReviewFromCurrentProduct(Guid productId)
+    public async Task<List<ProductReview>> ListReviewFromCurrentProduct(Guid productId)
     {
         var reviews = await _context.Reviews.Include(x => x.Users).Where(x => x.ProductId == productId).ToListAsync();
         return reviews;

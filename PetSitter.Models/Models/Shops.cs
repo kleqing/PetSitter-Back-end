@@ -8,7 +8,7 @@ public class Shops
     public string Description { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string Location { get; set; } = string.Empty;
-    public List<string> SocialMediaLinks { get; set; } = new List<string>();
+    public string SocialMediaLinks { get; set; } = string.Empty;
     public string ShopImageUrl { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

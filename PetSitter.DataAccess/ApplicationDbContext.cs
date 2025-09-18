@@ -16,7 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<Orders> Orders { get; set; }
     public DbSet<Products> Products { get; set; }
-    public DbSet<Reviews> Reviews { get; set; }
+    public DbSet<ProductReview> Reviews { get; set; }
     public DbSet<Services> Services { get; set; }
     public DbSet<Shops> Shops { get; set; }
     public DbSet<BlogTags> BlogTags { get; set; }
@@ -25,6 +25,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<ProductTags> ProductTags { get; set; }
     public DbSet<ServiceTags> ServiceTags { get; set; }
     public DbSet<Users> Users { get; set; }
+    public DbSet<ServiceReview> ServiceReviews { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,7 +35,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<OrderItem>().HasKey(x => x.OrderItemId);
         modelBuilder.Entity<Orders>().HasKey(x => x.OrderId);
         modelBuilder.Entity<Products>().HasKey(x => x.ProductId);
-        modelBuilder.Entity<Reviews>().HasKey(x => x.ReviewId);
+        modelBuilder.Entity<ProductReview>().HasKey(x => x.ReviewId);
         modelBuilder.Entity<Services>().HasKey(x => x.ServiceId);
         modelBuilder.Entity<Shops>().HasKey(x => x.ShopId);
         modelBuilder.Entity<BlogTags>().HasKey(x => x.BlogTagId);
@@ -43,6 +44,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Pets>().HasKey(x => x.PetId);
         modelBuilder.Entity<Users>().HasKey(x => x.UserId);
         modelBuilder.Entity<ServiceTags>().HasKey(x => x.ServiceTagId);
+        modelBuilder.Entity<ServiceReview>().HasKey(x => x.ReviewId);
         
         //* Relationships
         modelBuilder.Entity<Users>()
@@ -145,5 +147,16 @@ public class ApplicationDbContext : DbContext
             .HasOne(x => x.Categories)
             .WithMany(x => x.Blogs)
             .HasForeignKey(x => x.CategoryId);
+        
+        modelBuilder.Entity<ServiceReview>()
+            .HasOne(x => x.Users)
+            .WithMany(x => x.ServiceReviews)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<ServiceReview>()
+            .HasOne(x => x.Service)
+            .WithMany(x => x.ServiceReviews)
+            .HasForeignKey(x => x.ServiceId);
     }
 }
