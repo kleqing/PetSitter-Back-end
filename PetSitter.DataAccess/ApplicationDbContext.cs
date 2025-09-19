@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PetSitter.Models.Models;
 
 namespace PetSitter.DataAccess;
@@ -26,6 +25,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<ServiceTags> ServiceTags { get; set; }
     public DbSet<Users> Users { get; set; }
     public DbSet<ServiceReview> ServiceReviews { get; set; }
+    public DbSet<BlogLikes> BlogLikes { get; set; }
+    public DbSet<Wishlist> Wishlists { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,6 +46,8 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Users>().HasKey(x => x.UserId);
         modelBuilder.Entity<ServiceTags>().HasKey(x => x.ServiceTagId);
         modelBuilder.Entity<ServiceReview>().HasKey(x => x.ReviewId);
+        modelBuilder.Entity<BlogLikes>().HasKey(x => x.BlogLikeId);
+        modelBuilder.Entity<Wishlist>().HasKey(x => x.WishlistId);
         
         //* Relationships
         modelBuilder.Entity<Users>()
@@ -158,5 +161,27 @@ public class ApplicationDbContext : DbContext
             .HasOne(x => x.Service)
             .WithMany(x => x.ServiceReviews)
             .HasForeignKey(x => x.ServiceId);
+
+        modelBuilder.Entity<BlogLikes>()
+            .HasOne(x => x.Users)
+            .WithMany(x => x.BlogLikes)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<BlogLikes>()
+            .HasOne(x => x.Blogs)
+            .WithMany(x => x.BlogLikes)
+            .HasForeignKey(x => x.BlogId);
+        
+        modelBuilder.Entity<Wishlist>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.Wishlists)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<Wishlist>()
+            .HasOne(x => x.Product)
+            .WithMany(x => x.Wishlists)
+            .HasForeignKey(x => x.ProductId);
     }
 }
