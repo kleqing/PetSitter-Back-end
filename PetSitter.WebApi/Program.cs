@@ -1,7 +1,7 @@
 using System.Reflection;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using PetSitter.DataAccess;
+using PetSitter.Services.Implements;
 
 namespace PetSitter.WebApi;
 
@@ -39,6 +39,7 @@ public class Program
         }
         //* END OF AUTO REGISTER
 
+        builder.Services.AddHttpClient<CountryStateServices>();
         //* Configure routing to use lowercase URLs
         builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
         builder.Services.AddCors(options =>
