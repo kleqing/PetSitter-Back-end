@@ -2,16 +2,21 @@
 using PetSitter.DataAccess.Repository.Interfaces;
 using PetSitter.Models.DTO;
 using PetSitter.Models.Models;
+using PetSitter.Models.Request;
+using PetSitter.Utility.Ex;
+using PetSitter.Utility.Utils;
 
 namespace PetSitter.DataAccess.Repository.Implements;
 
 public class BlogRepository : IBlogRepository
 {
     private readonly ApplicationDbContext _context;
+    private readonly CloudinaryUploader _cloudinary;
     
-    public BlogRepository(ApplicationDbContext context)
+    public BlogRepository(ApplicationDbContext context, CloudinaryUploader cloudinary)
     {
         _context = context;
+        _cloudinary = cloudinary;
     }
 
     public async Task<List<Blogs>> ListAllBlogs()
@@ -107,4 +112,39 @@ public class BlogRepository : IBlogRepository
         };
     }
 
+    public async Task<Blogs> CreateBlog(BlogRequest request, Guid authorId)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == authorId);
+
+        if (user == null)
+        {
+            throw new GlobalException("User not found");
+        }
+
+        string? imageUrl = null;
+        if (request.FeatureImage != null)
+        {
+            imageUrl = await _cloudinary.UploadImage(request.FeatureImage);
+        }
+
+        var blog = new Blogs
+        {
+            BlogId = Guid.NewGuid(),
+            AuthorId = authorId,
+            TagId = request.BlogTagId,
+            CategoryId = request.CategoryId,
+            Title = request.Title,
+            Content = request.Content,
+            ReadTimeMinutes = request.ReadTimeMinutes,
+            FeaturedImageUrl = imageUrl ?? string.Empty,
+            ViewCount = 0,
+            LikeCount = 0,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _context.Blogs.Add(blog);
+        await _context.SaveChangesAsync();
+        return blog;
+    }
 }

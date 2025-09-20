@@ -1,5 +1,6 @@
 ﻿using PetSitter.Models.DTO;
 using PetSitter.Models.Models;
+using PetSitter.Models.Request;
 
 namespace PetSitter.DataAccess.Repository.Interfaces;
 
@@ -10,4 +11,5 @@ public interface IBlogRepository
     Task<bool> HasUserLiked(Guid blogId, Guid userId);
     Task<(int likeCount, bool hasLiked)> ToggleLike(Guid blogId, Guid userId);
     Task<BlogDetailDTO?> GetBlogDetail(Guid blogId, Guid userId);
+    Task<Blogs> CreateBlog(BlogRequest request, Guid authorId);
 }

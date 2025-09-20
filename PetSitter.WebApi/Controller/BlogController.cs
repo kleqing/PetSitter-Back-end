@@ -2,6 +2,7 @@
 using PetSitter.DataAccess.Repository.Interfaces;
 using PetSitter.Models.DTO;
 using PetSitter.Models.Models;
+using PetSitter.Models.Request;
 using PetSitter.Utility.Common;
 
 namespace PetSitter.WebApi.Controller;
@@ -58,7 +59,7 @@ public class BlogController : ControllerBase
     }
 
     
-    [HttpPost("IncreaseView/{blogId}")]
+    [HttpPost("increaseview/{blogId}")]
     public async Task<IActionResult> IncreaseView(Guid blogId)
     {
         var response = new BaseResultResponse<Blogs>();
@@ -116,4 +117,25 @@ public class BlogController : ControllerBase
         return Ok(response);
     }
 
+    [HttpPost("{authorId}/create")]
+    public async Task<IActionResult> CreateBlog([FromRoute] Guid authorId, [FromForm] BlogRequest request)
+    {
+        var response = new BaseResultResponse<Blogs>();
+
+        try
+        {
+            var blog = await _blogRepository.CreateBlog(request, authorId);
+            response.Success = true;
+            response.Message = "Blog created successfully.";
+            response.Data = blog;
+        }
+        catch (Exception ex)
+        {
+            response.Success = false;
+            response.Message = ex.Message;
+            response.Data = null;
+        }
+
+        return Ok(response);
+    }
 }
