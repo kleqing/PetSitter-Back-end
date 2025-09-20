@@ -23,4 +23,5 @@ public class Products
     public virtual ProductTags Tags { get; set; }
     public virtual Brands Brand { get; set; }
     public virtual Categories Category { get; set; }
+    public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 }

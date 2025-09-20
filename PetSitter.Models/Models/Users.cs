@@ -25,4 +25,6 @@ public class Users
     public virtual ICollection<Orders> Orders { get; set; } = new List<Orders>();
     public virtual ICollection<Pets> Pets { get; set; } = new List<Pets>();
     public virtual ICollection<Bookings> Bookings { get; set; } = new List<Bookings>();
+    public virtual ICollection<BlogLikes> BlogLikes { get; set; } = new List<BlogLikes>();
+    public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 }

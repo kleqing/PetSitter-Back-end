@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetSitter.DataAccess;
+using PetSitter.Models.Enums;
 using PetSitter.Models.Models;
 using PetSitter.Models.Request;
 using PetSitter.Services.Interfaces;
@@ -26,6 +27,18 @@ public class AuthServices : IAuthServices
         {
             throw new GlobalException("Email already in use");
         }
+        
+        Random rnd = new Random();
+        //* random image from link
+        var imageUrl = new[]
+        {
+            "https://avatar.iran.liara.run/public/8",
+            "https://avatar.iran.liara.run/public/45",
+            "https://avatar.iran.liara.run/public/47",
+            "https://avatar.iran.liara.run/public/65",
+            "https://avatar.iran.liara.run/public/64",
+            "https://avatar.iran.liara.run/public/78",
+        };
 
         var user = new Users
         {
@@ -37,12 +50,33 @@ public class AuthServices : IAuthServices
             DateOfBirth = request.DateOfBirth ?? DateTime.MinValue,
             Address = request.Address,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            ProfilePictureUrl = imageUrl[rnd.Next(imageUrl.Length)],
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
+
+        if (user.Role == UserRole.ShopOwner)
+        {
+            var shop = new Shops
+            {
+                ShopId = Guid.NewGuid(),
+                UserId = user.UserId,
+                ShopName = !string.IsNullOrWhiteSpace(request.ShopName) ? request.ShopName : $"{user.FullName}'s Shop",
+                Description = !string.IsNullOrWhiteSpace(request.Description) ? request.Description : "Welcome to our shop!",
+                Address = user.Address,
+                Location = user.Address.Split(",").FirstOrDefault()?.Trim() ?? user.Address,
+                SocialMediaLinks = string.Empty,
+                ShopImageUrl = user.ProfilePictureUrl,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            
+            _context.Shops.Add(shop);
+            await _context.SaveChangesAsync();
+        }
 
         return user;
     }

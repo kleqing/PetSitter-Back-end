@@ -11,4 +11,6 @@ public class RegisterRequest
     public UserRole Role { get; set; }
     public DateTime? DateOfBirth { get; set; }
     public string Address { get; set; } = string.Empty;
+    public string ShopName { get; set; }
+    public string Description { get; set; }
 }

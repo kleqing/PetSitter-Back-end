@@ -15,7 +15,7 @@ public class ServiceRepository : IServiceRepository
     
     public async Task<List<Services>> ListAllServices()
     {
-        var service=  await _context.Services.Include(x => x.ServiceReviews).ToListAsync();
+        var service=  await _context.Services.Include(x => x.ServiceReviews).Include(x => x.Shop).ToListAsync();
         return service;
     }
     
@@ -23,6 +23,7 @@ public class ServiceRepository : IServiceRepository
     {
         return await _context.Services
             .Include(x => x.ServiceReviews)
+            .ThenInclude(x => x.Users)
             .Include(x => x.Shop)
             .FirstOrDefaultAsync(x => x.ServiceId == serviceId);
     }
