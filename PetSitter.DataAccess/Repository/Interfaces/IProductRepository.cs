@@ -8,4 +8,6 @@ public interface IProductRepository
     Task<Products> PrintProductFromId(Guid productId);
     Task<List<Products>> ListRelatedProductsFromCurrentProduct(Guid productId);
     Task<List<ProductReview>> ListReviewFromCurrentProduct(Guid productId);
+    Task<Products> FindByIdAsync(Guid productId); //Find 1
+    Task<List<Products>> GetByIdsAsync(List<Guid> productIds); //Find all
 }

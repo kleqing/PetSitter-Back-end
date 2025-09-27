@@ -6,6 +6,7 @@ public class Orders
 {
     public Guid OrderId { get; set; }
     public Guid UserId { get; set; }
+    public long OrderCode { get; set; }
     public decimal TotalAmount { get; set; }
     public OrderStatus Status { get; set; }
     public string ShippingAddress { get; set; } = string.Empty;

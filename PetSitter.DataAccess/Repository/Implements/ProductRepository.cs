@@ -61,4 +61,20 @@ public class ProductRepository : IProductRepository
         var reviews = await _context.Reviews.Include(x => x.Users).Where(x => x.ProductId == productId).ToListAsync();
         return reviews;
     }
+
+    public async Task<Products> FindByIdAsync(Guid productId)
+    {
+        var product = await _context.Products.FindAsync(productId);
+        if (product == null)
+        {
+            throw new GlobalException("Product not found");
+        }
+        return product;
+    }
+
+    public async Task<List<Products>> GetByIdsAsync(List<Guid> productIds)
+    {
+        var products = await _context.Products.Where(p => productIds.Contains(p.ProductId)).ToListAsync();
+        return products;
+    }
 }

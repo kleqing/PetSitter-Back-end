@@ -7,6 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="CloudinaryDotNet" Version="1.27.7" />
+      <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
       <Reference Include="CloudinaryDotNet">
         <HintPath>..\..\..\..\.nuget\packages\cloudinarydotnet\1.27.7\lib\netstandard2.0\CloudinaryDotNet.dll</HintPath>
       </Reference>
