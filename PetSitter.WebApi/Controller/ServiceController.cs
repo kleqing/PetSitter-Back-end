@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PetSitter.DataAccess.Repository.Interfaces;
 using PetSitter.Models.Models;
+using PetSitter.Models.Request;
 using PetSitter.Utility.Common;
 using Service = PetSitter.Models.Models.Services;
 namespace PetSitter.WebApi.Controller;
@@ -78,6 +79,27 @@ public class ServiceController : ControllerBase
             response.Data = null;
         }
 
+        return Ok(response);
+    }
+
+    [HttpPost("write-review")]
+    public async Task<IActionResult> WriteReviewService([FromBody] ServicesReviewRequest request)
+    {
+        var response = new BaseResultResponse<ServiceReview>();
+        
+        try
+        {
+            var review = await _serviceRepository.WriteReviewService(request);
+            response.Success = true;
+            response.Message = "Write review successful";
+            response.Data = review;
+        }
+        catch (Exception ex)
+        {
+            response.Success = false;
+            response.Message = ex.Message;
+            response.Data = null;
+        }
         return Ok(response);
     }
 }

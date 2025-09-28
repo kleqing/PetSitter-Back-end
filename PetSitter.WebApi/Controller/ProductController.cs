@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PetSitter.DataAccess.Repository.Interfaces;
 using PetSitter.Models.Models;
+using PetSitter.Models.Request;
 using PetSitter.Utility.Common;
 
 namespace PetSitter.WebApi.Controller;
@@ -102,6 +103,27 @@ public class ProductController : ControllerBase
             response.Data = null;
         }
 
+        return Ok(response);
+    }
+
+    [HttpPost("write-review")]
+    public async Task<IActionResult> WriteReviewForProduct([FromBody] ProductReviewRequest request)
+    {
+        var response = new BaseResultResponse<ProductReview>();
+        
+        try
+        {
+            var review = await _productRepository.WriteReviewForProduct(request);
+            response.Success = true;
+            response.Message = "Write review successful";
+            response.Data = review;
+        }
+        catch (Exception ex)
+        {
+            response.Success = false;
+            response.Message = ex.Message;
+            response.Data = null;
+        }
         return Ok(response);
     }
 }
