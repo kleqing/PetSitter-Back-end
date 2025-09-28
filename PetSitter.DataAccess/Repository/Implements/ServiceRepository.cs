@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetSitter.DataAccess.Repository.Interfaces;
 using PetSitter.Models.Models;
+using PetSitter.Models.Request;
 
 namespace PetSitter.DataAccess.Repository.Implements;
 
@@ -36,4 +37,26 @@ public class ServiceRepository : IServiceRepository
             .ToListAsync();
         return service;
     }
+
+    public async Task<ServiceReview> WriteReviewService(ServicesReviewRequest request)
+    {
+        var service = await _context.Services.FirstOrDefaultAsync(x => x.ServiceId == request.ServiceId);
+        if (service == null)
+        {
+            throw new Exception("Service not found");
+        }
+        var review = new ServiceReview
+        {
+            ReviewId = Guid.NewGuid(),
+            UserId = request.UserId,
+            ServiceId = request.ServiceId,
+            Comment = request.Context,
+            Rating = request.Rating,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.ServiceReviews.Add(review);
+        await _context.SaveChangesAsync();
+        return review;
+    }
+    
 }

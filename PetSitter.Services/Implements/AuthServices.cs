@@ -71,7 +71,9 @@ public class AuthServices : IAuthServices
                 SocialMediaLinks = string.Empty,
                 ShopImageUrl = user.ProfilePictureUrl,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                BankName = request.BankName,
+                BankNumber = request.BankNumber
             };
             
             _context.Shops.Add(shop);

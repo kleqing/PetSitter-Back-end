@@ -1,4 +1,5 @@
 ﻿using PetSitter.Models.Models;
+using PetSitter.Models.Request;
 
 namespace PetSitter.DataAccess.Repository.Interfaces;
 
@@ -10,4 +11,5 @@ public interface IProductRepository
     Task<List<ProductReview>> ListReviewFromCurrentProduct(Guid productId);
     Task<Products> FindByIdAsync(Guid productId); //Find 1
     Task<List<Products>> GetByIdsAsync(List<Guid> productIds); //Find all
+    Task<ProductReview> WriteReviewForProduct(ProductReviewRequest request);
 }

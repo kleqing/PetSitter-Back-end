@@ -10,6 +10,8 @@ public class Shops
     public string Location { get; set; } = string.Empty;
     public string SocialMediaLinks { get; set; } = string.Empty;
     public string ShopImageUrl { get; set; } = string.Empty;
+    public string BankName { get; set; } = string.Empty;
+    public string BankNumber { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 

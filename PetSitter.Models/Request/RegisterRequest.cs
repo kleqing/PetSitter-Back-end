@@ -13,4 +13,6 @@ public class RegisterRequest
     public string Address { get; set; } = string.Empty;
     public string ShopName { get; set; }
     public string Description { get; set; }
+    public string BankName { get; set; } = string.Empty;
+    public string BankNumber { get; set; } = string.Empty;
 }
