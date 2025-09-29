@@ -11,7 +11,7 @@ namespace PetSitter.WebApi.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -73,6 +73,44 @@ namespace PetSitter.WebApi.Controller
                 }
 
                 return Ok(order);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"An error occurred: {ex.Message}" });
+            }
+        }
+        [HttpGet("getAllOrders")]
+        public async Task<IActionResult> GetAllOrders()
+        {
+            //var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //if (!Guid.TryParse(userIdString, out var userId))
+            //{
+            //    return Unauthorized(new { message = "Invalid user token." });
+            //}
+
+            try
+            {
+                var orders = await _orderRepository.GetAllOrderAsync();
+                var ordersDto = orders.Select(o => new OrderDetailDto
+                {
+                    OrderId = o.OrderId,
+                    ShopId = o.OrderItems.FirstOrDefault().Product.Shop.ShopId,
+                    ShopName = o.OrderItems.FirstOrDefault().Product.Shop.ShopName,
+                    OrderCode = o.OrderCode,
+                    TotalAmount = o.TotalAmount,
+                    Status = o.Status,
+                    ShippingAddress = o.ShippingAddress,
+                    CreatedAt = o.CreatedAt,
+                });
+                
+                
+                if (orders == null)
+                {
+                    return NotFound(new { message = "Orders are empty" });
+                }
+
+
+                return Ok(ordersDto);
             }
             catch (Exception ex)
             {

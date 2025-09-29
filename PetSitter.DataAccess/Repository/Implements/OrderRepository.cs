@@ -41,5 +41,14 @@ namespace PetSitter.DataAccess.Repository.Implements
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
         }
+        public async Task<IEnumerable<Orders>> GetAllOrderAsync()
+        {
+            return await _context.Orders
+                          .Include(o => o.OrderItems)
+                          .ThenInclude(oi => oi.Product)
+                          .ThenInclude(p => p.Shop)
+                          .ToListAsync();
+
+        }
     }
 }
