@@ -97,8 +97,7 @@ namespace PetSitter.WebApi.Controller
                 }
 
                 var orderItems = orders
-                    .SelectMany(o => o.OrderItems)
-                    .Where(oi => oi.Status == 1);
+                    .SelectMany(o => o.OrderItems);
 
                 var ordersDto = orderItems
                     .GroupBy(oi => oi.Product.Shop)
