@@ -87,28 +87,36 @@ namespace PetSitter.WebApi.Controller
             //{
             //    return Unauthorized(new { message = "Invalid user token." });
             //}
-
             try
             {
                 var orders = await _orderRepository.GetAllOrderAsync();
-                var ordersDto = orders.Select(o => new OrderDetailDto
-                {
-                    OrderId = o.OrderId,
-                    ShopId = o.OrderItems.FirstOrDefault().Product.Shop.ShopId,
-                    ShopName = o.OrderItems.FirstOrDefault().Product.Shop.ShopName,
-                    OrderCode = o.OrderCode,
-                    TotalAmount = o.TotalAmount,
-                    Status = o.Status,
-                    ShippingAddress = o.ShippingAddress,
-                    CreatedAt = o.CreatedAt,
-                });
-                
-                
-                if (orders == null)
+
+                if (orders == null || !orders.Any())
                 {
                     return NotFound(new { message = "Orders are empty" });
                 }
 
+                var orderItems = orders
+                    .SelectMany(o => o.OrderItems)
+                    .Where(oi => oi.Status == 1);
+
+                var ordersDto = orderItems
+                    .GroupBy(oi => oi.Product.Shop)
+                    .Select(g => new OrderDetailDto
+                    {
+                        ShopId = g.Key.ShopId,
+                        ShopName = g.Key.ShopName,
+                        TotalAmount = g.Sum(i => i.Quantity * i.Price),
+                        Items = g.Select(i => new OrderItemDto
+                        {
+                            ItemId = i.OrderItemId,
+                            ProductId = i.ProductId,
+                            ProductImage = i.Product.ProductImageUrl,
+                            ProductName = i.Product.ProductName,
+                            Quantity = i.Quantity,
+                            Price = i.Price,
+                        }).ToList()
+                    });
 
                 return Ok(ordersDto);
             }
@@ -116,6 +124,8 @@ namespace PetSitter.WebApi.Controller
             {
                 return StatusCode(500, new { message = $"An error occurred: {ex.Message}" });
             }
+
+
         }
     }
 }
