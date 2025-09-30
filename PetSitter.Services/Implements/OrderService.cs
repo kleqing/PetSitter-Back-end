@@ -77,7 +77,7 @@ namespace PetSitter.Services.Implements
                 description: $"Orders #{createdOrder.OrderCode}",
                 items: itemsForPayOS,
                 cancelUrl: "http://localhost:3000/payment/cancel", // Thay bằng URL của bạn
-                returnUrl: "http://localhost:3000/payment/success" // Thay bằng URL của bạn
+                returnUrl: "http://localhost:3000/payment/success orderid " // Thay bằng URL của bạn
             );
 
             // Trả về kết quả từ việc tạo link thanh toán

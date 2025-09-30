@@ -11,7 +11,7 @@ namespace PetSitter.WebApi.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -78,6 +78,54 @@ namespace PetSitter.WebApi.Controller
             {
                 return StatusCode(500, new { message = $"An error occurred: {ex.Message}" });
             }
+        }
+        [HttpGet("getAllOrders")]
+        public async Task<IActionResult> GetAllOrders()
+        {
+            //var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //if (!Guid.TryParse(userIdString, out var userId))
+            //{
+            //    return Unauthorized(new { message = "Invalid user token." });
+            //}
+            try
+            {
+                var orders = await _orderRepository.GetAllOrderAsync();
+
+                if (orders == null || !orders.Any())
+                {
+                    return NotFound(new { message = "Orders are empty" });
+                }
+
+                var orderItems = orders
+                    .SelectMany(o => o.OrderItems)
+                    .Where(oi => oi.Status == 1);
+
+                var ordersDto = orderItems
+                    .GroupBy(oi => oi.Product.Shop)
+                    .Select(g => new OrderDetailDto
+                    {
+                        ShopId = g.Key.ShopId,
+                        ShopName = g.Key.ShopName,
+                        TotalAmount = g.Sum(i => i.Quantity * i.Price),
+                        Items = g.Select(i => new OrderItemDto
+                        {
+                            ItemId = i.OrderItemId,
+                            ProductId = i.ProductId,
+                            ProductImage = i.Product.ProductImageUrl,
+                            ProductName = i.Product.ProductName,
+                            Quantity = i.Quantity,
+                            Price = i.Price,
+                        }).ToList()
+                    });
+
+                return Ok(ordersDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"An error occurred: {ex.Message}" });
+            }
+
+
         }
     }
 }
