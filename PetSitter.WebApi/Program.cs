@@ -1,18 +1,17 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Net.payOS;
-using Newtonsoft.Json.Converters;
+using Microsoft.OpenApi.Models;
 using PetSitter.DataAccess;
 using PetSitter.DataAccess.Repository.Implements;
 using PetSitter.DataAccess.Repository.Interfaces;
 using PetSitter.Services.Implements;
 using PetSitter.Services.Interfaces;
-using PetSitter.Utility;
 using PetSitter.Utility.Utils;
 using System.Reflection;
 using System.Text;
+using PetSitter.Utility;
 
 namespace PetSitter.WebApi;
 
