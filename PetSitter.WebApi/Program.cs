@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Net.payOS;
+using Newtonsoft.Json.Converters;
 using PetSitter.DataAccess;
 using PetSitter.DataAccess.Repository.Implements;
 using PetSitter.DataAccess.Repository.Interfaces;
 using PetSitter.Services.Implements;
 using PetSitter.Services.Interfaces;
+using PetSitter.Utility;
 using PetSitter.Utility.Utils;
 using System.Reflection;
 using System.Text;
@@ -52,6 +55,7 @@ public class Program
         builder.Services.AddScoped<IOrderService, OrderService>();
         builder.Services.AddScoped<IPaymentService, PayOSService>();
         builder.Services.AddScoped<IJwtService, JwtService>();
+        builder.Services.AddScoped<IChatRepository, ChatRepository>();
 
         builder.Services.AddHttpClient<CountryStateServices>();
         builder.Services.AddSingleton<CloudinaryUploader>();
@@ -82,6 +86,22 @@ public class Program
         })
 .AddJwtBearer(options =>
 {
+    options.Events = new JwtBearerEvents
+    {
+        //Allo SignalR connections to receive access token from query string
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/chathub")))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -99,7 +119,33 @@ public class Program
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Enter 'Bearer' [space] and then your token in the text input below.\n\nExample: \"Bearer 12345abcdef\""
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+        });
+    });
         
         builder.Services.AddControllers()
             .AddNewtonsoftJson(options => {
@@ -107,10 +153,12 @@ public class Program
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 
                 options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+
+                options.SerializerSettings.Converters.Add(new UtcDateTimeConverter());
             });
         
         builder.Services.AddHttpContextAccessor();
-
+        builder.Services.AddSignalR();
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -126,7 +174,7 @@ public class Program
         app.UseCors("AllowNextJsApp");
         app.UseAuthentication();
         app.UseAuthorization();
-        
+        app.MapHub<ChatHub>("/chathub");
         app.MapControllers();
 
         app.Run();

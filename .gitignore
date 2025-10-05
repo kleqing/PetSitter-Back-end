@@ -60,3 +60,4 @@ nunit-*.xml
 # C# Migrations
 [Mm]igrations/
 /.vs
+/PetSitter.WebApi/appsettings.json

@@ -28,6 +28,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<ServiceReview> ServiceReviews { get; set; }
     public DbSet<BlogLikes> BlogLikes { get; set; }
     public DbSet<Wishlist> Wishlists { get; set; }
+    public DbSet<Conversation> Conversations { get; set; }
+    public DbSet<Message> Messages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -49,7 +51,20 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<ServiceReview>().HasKey(x => x.ReviewId);
         modelBuilder.Entity<BlogLikes>().HasKey(x => x.BlogLikeId);
         modelBuilder.Entity<Wishlist>().HasKey(x => x.WishlistId);
-        
+        modelBuilder.Entity<Conversation>().HasKey(c => c.ConversationId);
+        modelBuilder.Entity<Message>().HasKey(m => m.MessageId);
+
+        modelBuilder.Entity<Conversation>()
+            .HasOne(c => c.PetOwner)
+            .WithMany() 
+            .HasForeignKey(c => c.PetOwnerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Conversation>()
+            .HasOne(c => c.Shop)
+            .WithMany() 
+            .HasForeignKey(c => c.ShopId)
+            .OnDelete(DeleteBehavior.Restrict);
         //* Relationships
         modelBuilder.Entity<Users>()
             .HasOne(x => x.Shop)
