@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetSitter.DataAccess.Repository.Interfaces;
 using PetSitter.Models.Models;
+using PetSitter.Models.Request;
 using PetSitter.Utility.Ex;
 
 namespace PetSitter.DataAccess.Repository.Implements;
@@ -60,5 +61,42 @@ public class ProductRepository : IProductRepository
     {
         var reviews = await _context.Reviews.Include(x => x.Users).Where(x => x.ProductId == productId).ToListAsync();
         return reviews;
+    }
+
+    public async Task<Products> FindByIdAsync(Guid productId)
+    {
+        var product = await _context.Products.FindAsync(productId);
+        if (product == null)
+        {
+            throw new GlobalException("Product not found");
+        }
+        return product;
+    }
+
+    public async Task<List<Products>> GetByIdsAsync(List<Guid> productIds)
+    {
+        var products = await _context.Products.Where(p => productIds.Contains(p.ProductId)).ToListAsync();
+        return products;
+    }
+    
+    public async Task<ProductReview> WriteReviewForProduct(ProductReviewRequest request)
+    {
+        var product = await _context.Products.FirstOrDefaultAsync(x => x.ProductId == request.ProductId);
+        if (product == null)
+        {
+            throw new Exception("Service not found");
+        }
+        var review = new ProductReview
+        {
+            ReviewId = Guid.NewGuid(),
+            UserId = request.UserId,
+            ProductId = request.ProductId,
+            Comment = request.Context,
+            Rating = request.Rating,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.Reviews.Add(review);
+        await _context.SaveChangesAsync();
+        return review;
     }
 }

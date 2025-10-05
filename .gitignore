@@ -59,3 +59,4 @@ nunit-*.xml
 
 # C# Migrations
 [Mm]igrations/
+/.vs

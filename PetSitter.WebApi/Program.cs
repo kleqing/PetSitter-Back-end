@@ -1,8 +1,15 @@
-using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Net.payOS;
 using PetSitter.DataAccess;
+using PetSitter.DataAccess.Repository.Implements;
+using PetSitter.DataAccess.Repository.Interfaces;
 using PetSitter.Services.Implements;
+using PetSitter.Services.Interfaces;
 using PetSitter.Utility.Utils;
+using System.Reflection;
+using System.Text;
 
 namespace PetSitter.WebApi;
 
@@ -11,7 +18,9 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
+
+        IConfiguration configuration = builder.Configuration;
+
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
@@ -39,6 +48,10 @@ public class Program
             }
         }
         //* END OF AUTO REGISTER
+        builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+        builder.Services.AddScoped<IOrderService, OrderService>();
+        builder.Services.AddScoped<IPaymentService, PayOSService>();
+        builder.Services.AddScoped<IJwtService, JwtService>();
 
         builder.Services.AddHttpClient<CountryStateServices>();
         builder.Services.AddSingleton<CloudinaryUploader>();
@@ -47,14 +60,40 @@ public class Program
         builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("AllowAll", policy =>
+            options.AddPolicy("AllowNextJsApp", policy =>
             {
-                policy.AllowAnyOrigin()
+                policy.WithOrigins("http://localhost:3000")
                     .AllowAnyHeader()
-                    .AllowAnyMethod();
+                    .AllowAnyMethod()
+                    .AllowCredentials();
             });
         });
-        
+
+        builder.Services.AddSingleton(new PayOS(
+            configuration["PayOS:ClientId"],
+            configuration["PayOS:ApiKey"],
+            configuration["PayOS:ChecksumKey"]
+        ));
+
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JWT:Issuer"],
+        ValidAudience = builder.Configuration["JWT:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+    };
+});
+
         // Add services to the container.
         builder.Services.AddAuthorization();
 
@@ -63,9 +102,12 @@ public class Program
         builder.Services.AddSwaggerGen();
         
         builder.Services.AddControllers()
-            .AddNewtonsoftJson(options => 
-                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-            );
+            .AddNewtonsoftJson(options => {
+
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+
+                options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+            });
         
         builder.Services.AddHttpContextAccessor();
 
@@ -79,11 +121,9 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-        
-        app.UseCors("AllowAll");
 
         app.UseRouting();
-        
+        app.UseCors("AllowNextJsApp");
         app.UseAuthentication();
         app.UseAuthorization();
         
