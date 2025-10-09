@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PetSitter.DataAccess.Repository.Interfaces;
+using PetSitter.Models.DTO;
 using PetSitter.Models.Models;
 using PetSitter.Models.Request;
 using PetSitter.Utility.Ex;
@@ -15,14 +16,33 @@ public class ProductRepository : IProductRepository
         _context = context;
     }
 
-    public async Task<List<Products>> ListAllProducts()
+    public async Task<List<ProductDto>> ListAllProducts()
     {
-        var product = await _context.Products.Include(x => x.Category)
-            .Include(x => x.Tags)
-            .Include(x => x.Brand)
-            .Include(x => x.Reviews)
+        var products = await _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .Include(p => p.Tags)
+            .Include(p => p.Reviews)
+            .Select(p => new ProductDto
+            {
+                ProductId = p.ProductId,
+                ProductName = p.ProductName,
+                Price = p.Price,
+                ProductImageUrl = p.ProductImageUrl,
+                CategoryName = p.Category.CategoryName,
+                BrandName = p.Brand.BrandName,
+                Tags = new List<string> { p.Tags.ProductTagName },
+                Description = p.Description,
+                AvailabilityStatus = p.AvailabilityStatus,
+                Rating = p.Reviews.Any() ? Math.Round(p.Reviews.Average(r => r.Rating), 1) : 0,
+                StockQuantity = p.StockQuantity,
+                ShopId = p.ShopId,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt
+            })
             .ToListAsync();
-        return product;
+
+        return products;
     }
 
     public async Task<Products> PrintProductFromId(Guid productId)

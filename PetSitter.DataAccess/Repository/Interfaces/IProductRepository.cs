@@ -1,11 +1,12 @@
-﻿using PetSitter.Models.Models;
+﻿using PetSitter.Models.DTO;
+using PetSitter.Models.Models;
 using PetSitter.Models.Request;
 
 namespace PetSitter.DataAccess.Repository.Interfaces;
 
 public interface IProductRepository
 {
-    Task<List<Products>> ListAllProducts();
+    Task<List<ProductDto>> ListAllProducts();
     Task<Products> PrintProductFromId(Guid productId);
     Task<List<Products>> ListRelatedProductsFromCurrentProduct(Guid productId);
     Task<List<ProductReview>> ListReviewFromCurrentProduct(Guid productId);

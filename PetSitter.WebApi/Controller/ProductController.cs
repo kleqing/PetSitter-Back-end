@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PetSitter.DataAccess.Repository.Interfaces;
+using PetSitter.Models.DTO;
 using PetSitter.Models.Models;
 using PetSitter.Models.Request;
 using PetSitter.Utility.Common;
@@ -20,7 +21,7 @@ public class ProductController : ControllerBase
     [HttpGet("list-products")]
     public async Task<IActionResult> ListAllProducts()
     {
-        var response = new BaseResultResponse<List<Products>>();
+        var response = new BaseResultResponse<List<ProductDto>>();
         
         var products = await _productRepository.ListAllProducts();
         
