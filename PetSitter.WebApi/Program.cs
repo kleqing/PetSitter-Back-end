@@ -65,7 +65,7 @@ public class Program
         {
             options.AddPolicy("AllowNextJsApp", policy =>
             {
-                policy.WithOrigins("http://localhost:3000")
+                policy.WithOrigins("http://localhost:3000", "https://pet-sitter-seven.vercel.app")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
