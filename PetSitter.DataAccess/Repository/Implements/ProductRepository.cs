@@ -18,39 +18,97 @@ public class ProductRepository : IProductRepository
 
     public async Task<List<ProductDto>> ListAllProducts()
     {
-        var products = await _context.Products
-            .Include(p => p.Category)
-            .Include(p => p.Brand)
-            .Include(p => p.Tags)
-            .Include(p => p.Reviews)
-            .Select(p => new ProductDto
+        //* This is my test to reduce memory usage, replace include with select new
+        var product = await _context.Products
+            .Select(x => new Products
             {
-                ProductId = p.ProductId,
-                ProductName = p.ProductName,
-                Price = p.Price,
-                ProductImageUrl = p.ProductImageUrl,
-                CategoryName = p.Category.CategoryName,
-                BrandName = p.Brand.BrandName,
-                Tags = new List<string> { p.Tags.ProductTagName },
-                Description = p.Description,
-                AvailabilityStatus = p.AvailabilityStatus,
-                Rating = p.Reviews.Any() ? Math.Round(p.Reviews.Average(r => r.Rating), 1) : 0,
-                StockQuantity = p.StockQuantity,
-                ShopId = p.ShopId,
-                CreatedAt = p.CreatedAt,
-                UpdatedAt = p.UpdatedAt
+                ProductId = x.ProductId,
+                ProductName = x.ProductName,
+                Price = x.Price,
+                ProductImageUrl = x.ProductImageUrl,
+                Category = new Categories
+                {
+                    CategoryId = x.Category.CategoryId,
+                    CategoryName = x.Category.CategoryName
+                },
+                Brand = new Brands
+                {
+                    BrandId = x.Brand.BrandId,
+                    BrandName = x.Brand.BrandName
+                },
+                Tags = new ProductTags
+                {
+                    ProductTagId = x.Tags.ProductTagId,
+                    ProductTagName = x.Tags.ProductTagName
+                },
+                Description = x.Description,
+                AvailabilityStatus = x.AvailabilityStatus,
+                Reviews = x.Reviews.Select(r => new ProductReview
+                {
+                    ReviewId = r.ReviewId,
+                    Rating = r.Rating,
+                    Comment = r.Comment
+                }).ToList(),
+                StockQuantity = x.StockQuantity,
+                ShopId = x.ShopId,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt
             })
             .ToListAsync();
 
-        return products;
+        return product.Select(p => new ProductDto
+        {
+            ProductId = p.ProductId,
+            ProductName = p.ProductName,
+            Price = p.Price,
+            ProductImageUrl = p.ProductImageUrl,
+            CategoryName = p.Category.CategoryName,
+            BrandName = p.Brand.BrandName,
+            Tags = new List<string> { p.Tags.ProductTagName },
+            Description = p.Description,
+            AvailabilityStatus = p.AvailabilityStatus,
+            Rating = p.Reviews.Any() ? Math.Round(p.Reviews.Average(r => r.Rating), 1) : 0,
+            StockQuantity = p.StockQuantity,
+            ShopId = p.ShopId,
+            CreatedAt = p.CreatedAt,
+            UpdatedAt = p.UpdatedAt
+        }).ToList();
     }
 
     public async Task<Products> PrintProductFromId(Guid productId)
     {
-        var product = await _context.Products.Include(x => x.Category)
-            .Include(x => x.Tags)
-            .Include(x => x.Brand)
-            .FirstOrDefaultAsync(x => x.ProductId == productId);
+        var product = await _context.Products
+            .Where(x => x.ProductId == productId)
+            .Select(x => new Products
+            {
+                ProductId = x.ProductId,
+                ProductName = x.ProductName,
+                Price = x.Price,
+                ProductImageUrl = x.ProductImageUrl,
+                Category = new Categories
+                {
+                    CategoryId = x.Category.CategoryId,
+                    CategoryName = x.Category.CategoryName
+                },
+                Brand = new Brands
+                {
+                    BrandId = x.Brand.BrandId,
+                    BrandName = x.Brand.BrandName
+                },
+                Tags = new ProductTags
+                {
+                    ProductTagId = x.Tags.ProductTagId,
+                    ProductTagName = x.Tags.ProductTagName
+                },
+                Description = x.Description,
+                AvailabilityStatus = x.AvailabilityStatus,
+                StockQuantity = x.StockQuantity,
+                ShopId = x.ShopId,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt
+            })
+            .FirstOrDefaultAsync();
+        
         if (product == null)
         {
             throw new GlobalException("Product not found");
@@ -61,19 +119,75 @@ public class ProductRepository : IProductRepository
 
     public async Task<List<Products>> ListRelatedProductsFromCurrentProduct(Guid productId)
     {
-        var currentProduct = await _context.Products.Include(x => x.Category)
-            .Include(x => x.Tags)
-            .Include(x => x.Brand)
+        var currentProduct = await _context.Products
+            .Select(x => new Products
+            {
+                ProductId = x.ProductId,
+                ProductName = x.ProductName,
+                Price = x.Price,
+                ProductImageUrl = x.ProductImageUrl,
+                Category = new Categories
+                {
+                    CategoryId = x.Category.CategoryId,
+                    CategoryName = x.Category.CategoryName
+                },
+                Brand = new Brands
+                {
+                    BrandId = x.Brand.BrandId,
+                    BrandName = x.Brand.BrandName
+                },
+                Tags = new ProductTags
+                {
+                    ProductTagId = x.Tags.ProductTagId,
+                    ProductTagName = x.Tags.ProductTagName
+                },
+                Description = x.Description,
+                AvailabilityStatus = x.AvailabilityStatus,
+                StockQuantity = x.StockQuantity,
+                ShopId = x.ShopId,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt
+            })
             .FirstOrDefaultAsync(x => x.ProductId == productId);
+        
         if (currentProduct == null)
         {
             throw new GlobalException("Product not found");
         }
-
-        var relatedProducts = await _context.Products.Include(x => x.Category)
-            .Where(x => x.CategoryId == currentProduct.CategoryId || x.BrandId == currentProduct.BrandId ||
-                        x.Tags == currentProduct.Tags && x.ProductId != productId)
+        
+        var relatedProducts = await _context.Products
+            .Where(x => (x.CategoryId == currentProduct.Category.CategoryId || x.BrandId == currentProduct.Brand.BrandId ||
+                         x.TagId == currentProduct.Tags.ProductTagId) && x.ProductId != productId)
+            .Select(x => new Products
+            {
+                ProductId = x.ProductId,
+                ProductName = x.ProductName,
+                Price = x.Price,
+                ProductImageUrl = x.ProductImageUrl,
+                Category = new Categories
+                {
+                    CategoryId = x.Category.CategoryId,
+                    CategoryName = x.Category.CategoryName
+                },
+                Brand = new Brands
+                {
+                    BrandId = x.Brand.BrandId,
+                    BrandName = x.Brand.BrandName
+                },
+                Tags = new ProductTags
+                {
+                    ProductTagId = x.Tags.ProductTagId,
+                    ProductTagName = x.Tags.ProductTagName
+                },
+                Description = x.Description,
+                AvailabilityStatus = x.AvailabilityStatus,
+                StockQuantity = x.StockQuantity,
+                ShopId = x.ShopId,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt
+            })
             .ToListAsync();
+        
         return relatedProducts;
     }
 

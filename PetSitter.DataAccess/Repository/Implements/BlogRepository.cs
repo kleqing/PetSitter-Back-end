@@ -21,10 +21,37 @@ public class BlogRepository : IBlogRepository
 
     public async Task<List<Blogs>> ListAllBlogs()
     {
-        var blogs = await _context.Blogs.Include(x => x.BlogTag)
-            .Include(x => x.Author)
-            .ThenInclude(x => x.Shop).ToListAsync();
-        
+        var blogs = await _context.Blogs
+            .Select(x => new Blogs
+            {
+                BlogId = x.BlogId,
+                Title = x.Title,
+                Content = x.Content,
+                TagId = x.TagId,
+                BlogTag = new BlogTags
+                {
+                    BlogTagId = x.BlogTag.BlogTagId,
+                    BlogTagName = x.BlogTag.BlogTagName
+                },
+                ReadTimeMinutes = x.ReadTimeMinutes,
+                ViewCount = x.ViewCount,
+                LikeCount = x.LikeCount,
+                CreatedAt = x.CreatedAt,
+                FeaturedImageUrl = x.FeaturedImageUrl,
+                AuthorId = x.AuthorId,
+                Author = new Users
+                {
+                    UserId = x.Author.UserId,
+                    FullName = x.Author.FullName,
+                    ProfilePictureUrl = x.Author.ProfilePictureUrl,
+                    Shop = new Shops
+                    {
+                        ShopId = x.Author.Shop.ShopId,
+                        Description = x.Author.Shop.Description
+                    }
+                }
+            })
+            .ToListAsync();
         return blogs;
     }
     
@@ -72,7 +99,6 @@ public class BlogRepository : IBlogRepository
         }
         else
         {
-            // Đã like → bỏ like
             _context.BlogLikes.Remove(existingLike);
             blog.LikeCount -= 1;
             await _context.SaveChangesAsync();
@@ -84,12 +110,36 @@ public class BlogRepository : IBlogRepository
     public async Task<BlogDetailDTO?> GetBlogDetail(Guid blogId, Guid userId)
     {
         var blog = await _context.Blogs
-            .Include(b => b.BlogLikes)
-            .Include(b => b.Author)
-            .ThenInclude(u => u.Shop)
-            .Include(b => b.BlogTag)
-            .FirstOrDefaultAsync(b => b.BlogId == blogId);
-
+            .Select(x => new Blogs
+            {
+                BlogId = x.BlogId,
+                Title = x.Title,
+                Content = x.Content,
+                TagId = x.TagId,
+                BlogTag = new BlogTags
+                {
+                    BlogTagId = x.BlogTag.BlogTagId,
+                    BlogTagName = x.BlogTag.BlogTagName
+                },
+                ReadTimeMinutes = x.ReadTimeMinutes,
+                ViewCount = x.ViewCount,
+                LikeCount = x.LikeCount,
+                CreatedAt = x.CreatedAt,
+                FeaturedImageUrl = x.FeaturedImageUrl,
+                AuthorId = x.AuthorId,
+                Author = new Users
+                {
+                    UserId = x.Author.UserId,
+                    FullName = x.Author.FullName,
+                    ProfilePictureUrl = x.Author.ProfilePictureUrl,
+                    Shop = new Shops
+                    {
+                        ShopId = x.Author.Shop.ShopId,
+                        Description = x.Author.Shop.Description
+                    }
+                }
+            }).FirstOrDefaultAsync(x => x.BlogId == blogId);
+        
         if (blog == null) return null;
 
         return new BlogDetailDTO
