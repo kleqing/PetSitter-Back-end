@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Globalization;
+using Microsoft.EntityFrameworkCore;
 using PetSitter.DataAccess;
 using PetSitter.Models.Enums;
 using PetSitter.Models.Models;
@@ -47,7 +48,10 @@ public class AuthServices : IAuthServices
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,
             Role = request.Role,
-            DateOfBirth = request.DateOfBirth ?? DateTime.MinValue,
+            DateOfBirth = DateTime.ParseExact(
+                string.IsNullOrWhiteSpace(request.DateOfBirth) ? "1900-01-01" : request.DateOfBirth,
+                "yyyy-MM-dd",
+                CultureInfo.InvariantCulture),            
             Address = request.Address,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             ProfilePictureUrl = imageUrl[rnd.Next(imageUrl.Length)],
