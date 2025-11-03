@@ -116,4 +116,27 @@ public class ShopRepository : IShopRepository
 
         return shop;
     }
+    
+    public async Task<decimal> CalculateOrderRevenueFromShopId(Guid shopId)
+    {
+        var gross = await _context.OrderItems
+            .Where(oi => oi.Product.ShopId == shopId && oi.Status == 1)
+            .Select(oi => (decimal?)oi.Price * oi.Quantity) 
+            .SumAsync() ?? 0m;
+
+        decimal commissionRate = 0.10m; 
+        var commission = Math.Round(gross * commissionRate, 2);
+        var netRevenue = gross - commission;
+
+        return netRevenue;
+    }
+    
+    public async Task<int> TotalSoldProductsFromShopId(Guid shopId)
+    {
+        var totalProductsSold = await _context.OrderItems
+            .Where(oi => oi.Product.ShopId == shopId && oi.Status == 1)
+            .SumAsync(oi => oi.Quantity);
+
+        return totalProductsSold;
+    }
 }

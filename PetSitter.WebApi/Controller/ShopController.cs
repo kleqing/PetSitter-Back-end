@@ -122,4 +122,25 @@ public class ShopController : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet("{shopId}/orders/revenue")]
+    public async Task<IActionResult> CalculateOrderRevenueFromShopId([FromRoute] Guid shopId)
+    {
+        var response = new BaseResultResponse<decimal>();
+        var revenue = await _shopRepository.CalculateOrderRevenueFromShopId(shopId);
+        response.Success = true;
+        response.Message = "Calculate order revenue from shop successful";
+        response.Data = revenue;
+        return Ok(response);
+    }
+
+    [HttpGet("{shopId}/products/total-sold")]
+    public async Task<IActionResult> TotalSoldProductsFromShopId([FromRoute] Guid shopId)
+    {
+        var response = new BaseResultResponse<int>();
+        var totalSold = await _shopRepository.TotalSoldProductsFromShopId(shopId);
+        response.Success = true;
+        response.Message = "Total sold products from shop successful";
+        response.Data = totalSold;
+        return Ok(response);
+    }
 }

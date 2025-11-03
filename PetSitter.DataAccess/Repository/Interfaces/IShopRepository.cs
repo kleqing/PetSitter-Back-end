@@ -11,4 +11,6 @@ public interface IShopRepository
     Task<Products> AddProductFromShopId(ProductRequest request, Guid shopId);
     Task<Products> UpdateProductFromShopId(Guid productId, ProductRequest request, Guid shopId);
     Task<Shops?> GetShopFromUserId(Guid userId);
+    Task<decimal> CalculateOrderRevenueFromShopId(Guid shopId);
+    Task<int> TotalSoldProductsFromShopId(Guid shopId);
 }
