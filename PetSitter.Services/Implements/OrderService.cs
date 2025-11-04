@@ -74,7 +74,8 @@ namespace PetSitter.Services.Implements
             var paymentData = new PaymentData(
                 orderCode: createdOrder.OrderCode,
                 amount: (int)createdOrder.TotalAmount,
-                description: $"Orders #{createdOrder.OrderCode}",
+                description: $"Orders #{createdOrder.OrderCode}_PetSitter",
+
                 items: itemsForPayOS,
                 cancelUrl: "http://localhost:3000/payment/cancel", // Thay bằng URL của bạn
                 returnUrl: "http://localhost:3000/payment/success" // Thay bằng URL của bạn
